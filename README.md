@@ -11,29 +11,64 @@
 
 ***Mac***
 
-- 預先安裝 [apktool](https://apktool.org/docs/install)
+- 安裝 [JDK](https://www.oracle.com/java/technologies/downloads/#jdk22-mac)
 
+	```bash
+	# 安裝 OpenJDK (推薦)
+	brew install openjdk
+	
+	# 或安裝 JRE (較小的安裝包)
+	brew install openjdk --jre
 	```
-	brew install apktool
-	```
+
+- 測試 JDK 是否安裝成功
+    
+    ```bash
+    java --version
+    ```
+    > java 22.0.1 2024-04-16
+    >
+    > Java(TM) SE Runtime Environment (build 22.0.1+8-16)
+    >
+    > Java HotSpot(TM) 64-Bit Server VM (build 22.0.1+8-16, mixed mode, sharing)
 
 - 測試是否安裝 apktool 成功
 
-	```
-	apktool --version
+    ```bash
+    keytool --version
+    ```
+    > keytool 22.0.1
+
+- JDK 安裝失敗，[請參考這裡](https://blog.gslin.org/archives/2022/12/28/11009/mac-%E4%B8%8A%E7%94%A8-homebrew-%E5%AE%89%E8%A3%9D-java-%E7%9A%84%E6%96%B9%E5%BC%8F/)
+
+***Linux***
+
+- 安裝 JDK
+
+	```bash
+	# Ubuntu/Debian - 只安裝 JRE (較小)
+	sudo apt install default-jre
 	
-	// Output => 2.9.3
+	# 或安裝完整 JDK
+	sudo apt install default-jdk
+	
+	# CentOS/RHEL
+	sudo dnf install java-11-openjdk
 	```
+
+***Docker***
+
+- 待補上
 
 ## Usage
 
 ***Swift Package Manager***
+
+- Package.swift 的 dependencies 內添加
 	
-```swift
-dependencies: [
-    .package(name: "APKSignKey", url: "https://github.com/coollazy/APKSignKey.git", from: "1.0.0"),
-],
-```
+	```swift
+	.package(name: "APKSignKey", url: "https://github.com/coollazy/APKSignKey.git", from: "1.0.0"),
+	```
 
 ### APKSignKey
 
