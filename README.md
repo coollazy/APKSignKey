@@ -1,5 +1,10 @@
 # APKSignKey
 
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
+![Swift](https://img.shields.io/badge/Swift-5.9-orange)
+![SPM](https://img.shields.io/badge/SPM-Supported-green)
+[![CI](https://github.com/coollazy/APKSignKey/actions/workflows/ci.yml/badge.svg)](https://github.com/coollazy/APKSignKey/actions/workflows/ci.yml)
+
 產生 Android APK Sign Key
 
 ## Enviorment
