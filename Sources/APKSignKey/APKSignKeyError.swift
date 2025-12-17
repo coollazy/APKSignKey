@@ -9,13 +9,13 @@ public enum APKSignKeyError: Error, CustomStringConvertible, LocalizedError {
     public var description: String {
         switch self {
         case .keyNotFound(let path):
-            return "密鑰檔案不存在: \(path)"
+            return "Keystore file not found: \(path)"
         case .generateKeyFailed(let reason):
-            return "生成密鑰失敗: \(reason)"
+            return "Failed to generate keystore: \(reason)"
         case .invalidKeystore(let path):
-            return "無效的密鑰庫: \(path)"
+            return "Invalid keystore or wrong password: \(path)"
         case .exportPublicKeyFailed(let reason):
-            return "匯出公鑰失敗: \(reason)"
+            return "Failed to export public key: \(reason)"
         }
     }
     

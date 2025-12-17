@@ -90,9 +90,18 @@
 
 	```swift
 	do {
+	    // 基本用法
 		let signKey = try APKSignKey.generateKey(name: "Temp", password: "123456", storePassword: "123456")
 		print("New sign key => \(signKey.url)")
-		print("New sign key info => \n\(try signKey.getKeyInfo())")
+		
+		// 自定義 Distinguished Name (dname)
+		let customSignKey = try APKSignKey.generateKey(
+		    name: "MyAlias", 
+		    password: "password", 
+		    storePassword: "storepassword",
+		    dname: "CN=John Doe, OU=Dev, O=MyCompany, L=Taipei, ST=Taiwan, C=TW"
+		)
+		print("Custom sign key => \(customSignKey.url)")
 	}
 	catch {
 		print(error)
@@ -104,3 +113,16 @@
 	```
 	keytool -genkey -v -keystore ReleaseKey.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 	```
+
+- 匯出公鑰 (Public Key)
+
+    ```swift
+    do {
+        let signKey = try APKSignKey(url: signKeyURL, name: "Temp", password: "123456", storePassword: "123456")
+        let outputURL = URL(fileURLWithPath: "/path/to/public_key.cer")
+        try signKey.exportPublicKey(to: outputURL)
+        print("Public key exported to: \(outputURL.path)")
+    } catch {
+        print(error)
+    }
+    ```
