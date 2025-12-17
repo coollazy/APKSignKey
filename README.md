@@ -126,3 +126,19 @@
         print(error)
     }
     ```
+
+### Async/Await Support (Swift 5.5+)
+
+All major methods (`generateKey`, `validate`, `getKeyInfo`, `exportPublicKey`) have `async` counterparts.
+
+```swift
+// Async Generation
+let signKey = try await APKSignKey.generateKey(name: "Alias", password: "pass", storePassword: "pass")
+
+// Async Validation & Info
+try await signKey.validate()
+let info = try await signKey.getKeyInfo()
+
+// Async Export
+try await signKey.exportPublicKey(to: outputURL)
+```
