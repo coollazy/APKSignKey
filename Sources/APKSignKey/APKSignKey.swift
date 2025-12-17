@@ -26,7 +26,7 @@ public class APKSignKey {
                 "-keystore", url.path,
                 "-storepass", storePassword,
                 "-alias", name
-            ])
+            ], environment: ["LC_ALL": "C"])
         }
         catch {
             throw APKSignKeyError.invalidKeystore(path: url.path)
@@ -42,7 +42,7 @@ public class APKSignKey {
                 "-keystore", url.path,
                 "-storepass", storePassword,
                 "-alias", name
-            ])
+            ], environment: ["LC_ALL": "C"])
             
             // 解析輸出
             var info: [String: Any] = [:]

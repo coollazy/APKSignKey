@@ -14,7 +14,7 @@ extension APKSignKey {
                 "-storepass", storePassword,
                 "-alias", name,
                 "-file", outputURL.path,
-            ])
+            ], environment: ["LC_ALL": "C"])
         }
         catch {
             throw APKSignKeyError.exportPublicKeyFailed(reason: error.localizedDescription)

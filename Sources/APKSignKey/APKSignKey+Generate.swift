@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - 生成新密鑰
 extension APKSignKey {
-    public static func generateKey(name: String, password: String, storePassword: String) throws -> APKSignKey {
+    public static func generateKey(name: String, password: String, storePassword: String, dname: String = "CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown") throws -> APKSignKey {
         // 產生暫存路徑用來放新的SignKey
         let directoryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("APKSignKey")
@@ -24,8 +24,8 @@ extension APKSignKey {
                 "-validity", "10000",
                 "-keypass", "\(password)",
                 "-storepass", "\(storePassword)",
-                "-dname", "CN=YourName,OU=YourUnit,O=YourOrg,L=YourCity,ST=YourState,C=YourCountry",
-            ])
+                "-dname", dname,
+            ], environment: ["LC_ALL": "C"])
         }
         catch {
             throw APKSignKeyError.generateKeyFailed(reason: error.localizedDescription)

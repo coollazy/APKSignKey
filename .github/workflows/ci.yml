@@ -21,8 +21,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Resolve dependencies
         run: swift package resolve
 
       - name: Build
         run: swift build --configuration release
+      
+      - name: Run Tests
+        run: swift test
