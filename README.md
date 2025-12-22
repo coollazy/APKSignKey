@@ -67,7 +67,7 @@
 - Package.swift 的 dependencies 內添加
 	
 	```swift
-	.package(name: "APKSignKey", url: "https://github.com/coollazy/APKSignKey.git", from: "1.0.0"),
+	.package(name: "APKSignKey", url: "https://github.com/coollazy/APKSignKey.git", from: "1.1.0"),
 	```
 
 ### APKSignKey
