@@ -25,5 +25,9 @@ let package = Package(
             resources: [
             ]
         ),
+        .testTarget(
+            name: "APKSignKeyTests",
+            dependencies: ["APKSignKey"]
+        ),
     ]
 )

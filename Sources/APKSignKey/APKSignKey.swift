@@ -26,7 +26,23 @@ public class APKSignKey {
                 "-keystore", url.path,
                 "-storepass", storePassword,
                 "-alias", name
-            ])
+            ], environment: ["LC_ALL": "C"])
+        }
+        catch {
+            throw APKSignKeyError.invalidKeystore(path: url.path)
+        }
+    }
+    
+    // 驗證密鑰庫 (Async)
+    @available(macOS 10.15.0, *)
+    public func validate() async throws {
+        do {
+            _ = try await Command.run("keytool", arguments: [
+                "-list",
+                "-keystore", url.path,
+                "-storepass", storePassword,
+                "-alias", name
+            ], environment: ["LC_ALL": "C"])
         }
         catch {
             throw APKSignKeyError.invalidKeystore(path: url.path)
@@ -42,7 +58,39 @@ public class APKSignKey {
                 "-keystore", url.path,
                 "-storepass", storePassword,
                 "-alias", name
-            ])
+            ], environment: ["LC_ALL": "C"])
+            
+            // 解析輸出
+            var info: [String: Any] = [:]
+            let lines = output.components(separatedBy: .newlines)
+            
+            for line in lines {
+                if line.contains("Creation date:") {
+                    info["creationDate"] = line.replacingOccurrences(of: "Creation date: ", with: "").trimmingCharacters(in: .whitespaces)
+                }
+                else if line.contains("Certificate fingerprints:") {
+                    info["hasFingerprints"] = true
+                }
+            }
+            
+            return info
+        }
+        catch {
+            throw APKSignKeyError.invalidKeystore(path: url.path)
+        }
+    }
+    
+    // 取得密鑰資訊 (Async)
+    @available(macOS 10.15.0, *)
+    public func getKeyInfo() async throws -> [String: Any] {
+        do {
+            let output = try await Command.run("keytool", arguments: [
+                "-list",
+                "-v",
+                "-keystore", url.path,
+                "-storepass", storePassword,
+                "-alias", name
+            ], environment: ["LC_ALL": "C"])
             
             // 解析輸出
             var info: [String: Any] = [:]

@@ -2,13 +2,19 @@ import Foundation
 
 struct Command {
     @discardableResult
-    static func run(_ command: String, arguments: [String]) throws -> String {
+    static func run(_ command: String, arguments: [String], environment: [String: String]? = nil) throws -> String {
         let semaphore = DispatchSemaphore(value: 0)
         var result: Result<String, Error>?
         
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
         process.arguments = [command] + arguments
+        
+        var env = ProcessInfo.processInfo.environment
+        if let environment = environment {
+            env.merge(environment) { (_, new) in new }
+        }
+        process.environment = env
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -65,6 +71,55 @@ struct Command {
             return output
         case .failure(let error):
             throw error
+        }
+    }
+
+    @available(macOS 10.15.0, *)
+    @discardableResult
+    static func run(_ command: String, arguments: [String], environment: [String: String]? = nil) async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            process.arguments = [command] + arguments
+            
+            var env = ProcessInfo.processInfo.environment
+            if let environment = environment {
+                env.merge(environment) { (_, new) in new }
+            }
+            process.environment = env
+            
+            let outputPipe = Pipe()
+            let errorPipe = Pipe()
+            process.standardOutput = outputPipe
+            process.standardError = errorPipe
+            
+            // 設定完成回調(Docker container 裡面運行的時候，一定要用 terminatinHandler 才不會卡住)
+            process.terminationHandler = { process in
+                let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+                
+                let output = String(data: outputData, encoding: .utf8) ?? ""
+                let error = String(data: errorData, encoding: .utf8) ?? ""
+                let combinedOutput = output + error
+                
+                if process.terminationStatus == 0 {
+                    continuation.resume(returning: combinedOutput)
+                }
+                else {
+                    let errorObj = NSError(
+                        domain: "Command Error \(command)",
+                        code: Int(process.terminationStatus),
+                        userInfo: [NSLocalizedDescriptionKey: "\(arguments.joined(separator: " "))\n\n\(output)\n\n\(error)"]
+                    )
+                    continuation.resume(throwing: errorObj)
+                }
+            }
+            
+            do {
+                try process.run()
+            } catch {
+                continuation.resume(throwing: error)
+            }
         }
     }
 }

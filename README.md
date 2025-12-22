@@ -11,29 +11,64 @@
 
 ***Mac***
 
-- 預先安裝 [apktool](https://apktool.org/docs/install)
+- 安裝 [JDK](https://www.oracle.com/java/technologies/downloads/#jdk22-mac)
 
+	```bash
+	# 安裝 OpenJDK (推薦)
+	brew install openjdk
+	
+	# 或安裝 JRE (較小的安裝包)
+	brew install openjdk --jre
 	```
-	brew install apktool
-	```
+
+- 測試 JDK 是否安裝成功
+    
+    ```bash
+    java --version
+    ```
+    > java 22.0.1 2024-04-16
+    >
+    > Java(TM) SE Runtime Environment (build 22.0.1+8-16)
+    >
+    > Java HotSpot(TM) 64-Bit Server VM (build 22.0.1+8-16, mixed mode, sharing)
 
 - 測試是否安裝 apktool 成功
 
-	```
-	apktool --version
+    ```bash
+    keytool --version
+    ```
+    > keytool 22.0.1
+
+- JDK 安裝失敗，[請參考這裡](https://blog.gslin.org/archives/2022/12/28/11009/mac-%E4%B8%8A%E7%94%A8-homebrew-%E5%AE%89%E8%A3%9D-java-%E7%9A%84%E6%96%B9%E5%BC%8F/)
+
+***Linux***
+
+- 安裝 JDK
+
+	```bash
+	# Ubuntu/Debian - 只安裝 JRE (較小)
+	sudo apt install default-jre
 	
-	// Output => 2.9.3
+	# 或安裝完整 JDK
+	sudo apt install default-jdk
+	
+	# CentOS/RHEL
+	sudo dnf install java-11-openjdk
 	```
+
+***Docker***
+
+- 待補上
 
 ## Usage
 
 ***Swift Package Manager***
+
+- Package.swift 的 dependencies 內添加
 	
-```swift
-dependencies: [
-    .package(name: "APKSignKey", url: "https://github.com/coollazy/APKSignKey.git", from: "1.0.0"),
-],
-```
+	```swift
+	.package(name: "APKSignKey", url: "https://github.com/coollazy/APKSignKey.git", from: "1.1.0"),
+	```
 
 ### APKSignKey
 
@@ -55,9 +90,18 @@ dependencies: [
 
 	```swift
 	do {
+	    // 基本用法
 		let signKey = try APKSignKey.generateKey(name: "Temp", password: "123456", storePassword: "123456")
 		print("New sign key => \(signKey.url)")
-		print("New sign key info => \n\(try signKey.getKeyInfo())")
+		
+		// 自定義 Distinguished Name (dname)
+		let customSignKey = try APKSignKey.generateKey(
+		    name: "MyAlias", 
+		    password: "password", 
+		    storePassword: "storepassword",
+		    dname: "CN=John Doe, OU=Dev, O=MyCompany, L=Taipei, ST=Taiwan, C=TW"
+		)
+		print("Custom sign key => \(customSignKey.url)")
 	}
 	catch {
 		print(error)
@@ -69,3 +113,32 @@ dependencies: [
 	```
 	keytool -genkey -v -keystore ReleaseKey.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 	```
+
+- 匯出公鑰 (Public Key)
+
+    ```swift
+    do {
+        let signKey = try APKSignKey(url: signKeyURL, name: "Temp", password: "123456", storePassword: "123456")
+        let outputURL = URL(fileURLWithPath: "/path/to/public_key.cer")
+        try signKey.exportPublicKey(to: outputURL)
+        print("Public key exported to: \(outputURL.path)")
+    } catch {
+        print(error)
+    }
+    ```
+
+### Async/Await Support (Swift 5.5+)
+
+All major methods (`generateKey`, `validate`, `getKeyInfo`, `exportPublicKey`) have `async` counterparts.
+
+```swift
+// Async Generation
+let signKey = try await APKSignKey.generateKey(name: "Alias", password: "pass", storePassword: "pass")
+
+// Async Validation & Info
+try await signKey.validate()
+let info = try await signKey.getKeyInfo()
+
+// Async Export
+try await signKey.exportPublicKey(to: outputURL)
+```
